@@ -13,7 +13,13 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
     toJSON() {
-      return { ...this.get(), id: undefined }
+      return {...this.get(),
+        id: undefined,
+        uuid: undefined,
+        password_hash: undefined,
+        createdAt: undefined,
+        updatedAt: undefined
+      }
     }
   }
   user.init({
@@ -25,24 +31,25 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notNull: { msg: 'User must have a name'},
-        notEmpty: { msg: 'name can not be empty'}
+        notNull: { msg: 'User must have a name' },
+        notEmpty: { msg: 'name can not be empty' }
       }
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
       validate: {
-        notNull: { msg: "You must provide an e-mail attribute"},
-        notEmpty: { msg: "password can not be empty"}
+        notNull: { msg: "You must provide an e-mail attribute" },
+        notEmpty: { msg: "password can not be empty" }
       }
     },
     password_hash: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notNull: { msg: 'You must provide de password attribute'},
-        notEmpty: { msg: 'password can not be empty'}
+        notNull: { msg: 'You must provide de password attribute' },
+        notEmpty: { msg: 'password can not be empty' }
       }
     },
     provider: {
