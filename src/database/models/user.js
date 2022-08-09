@@ -1,4 +1,5 @@
 'use strict';
+var bcrypt = require('bcryptjs')
 const {
   Model
 } = require('sequelize');
@@ -13,10 +14,12 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
     toJSON() {
-      return {...this.get(),
+      return {
+        ...this.get(),
         id: undefined,
         uuid: undefined,
         password_hash: undefined,
+        password: undefined,
         createdAt: undefined,
         updatedAt: undefined
       }
@@ -44,13 +47,16 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: { msg: "password can not be empty" }
       }
     },
-    password_hash: {
-      type: DataTypes.STRING,
+    password: {
+      type: DataTypes.VIRTUAL,
       allowNull: false,
       validate: {
-        notNull: { msg: 'You must provide de password attribute' },
+        notNull: { msg: 'You must provide the password attribute' },
         notEmpty: { msg: 'password can not be empty' }
       }
+    },
+    password_hash: {
+      type: DataTypes.STRING
     },
     provider: {
       type: DataTypes.STRING,
@@ -58,8 +64,25 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false
     },
   }, {
+    hooks: {
+      beforeSave: async (user) => {
+        user.password_hash = await bcrypt.hash(user.password, 10)
+        // console.log('beforeSave')
+      },
+
+      beforeUpdate: async (user) => {
+        console.log(user.password_hash)
+        console.log(user.password)
+
+        let isValid = await bcrypt.compare(user.password, user.password_hash)
+        if (isValid) {}
+        console.log(isValid)
+      }
+
+    },
     sequelize,
     modelName: 'user',
   });
+
   return user;
 };

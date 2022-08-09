@@ -1,20 +1,27 @@
 const express = require('express')
 const routerIndex = require('./routes/index')
+var cookieParser = require('cookie-parser')
+var session = require('express-session')
 
 class App {
-    constructor(){
+    constructor() {
         this.app = express()
-        this.usingJson()
-        this.routing()
+        this.middlewares()
     }
 
-    usingJson() {
+    middlewares() {
         this.app.use(express.json())
+        this.app.use(routerIndex)
+        this.app.use(cookieParser())
+        this.app.use(session({
+            secret: "Shh, its a secret",
+            name: 'session',
+            cookie: {
+                maxAge: 60000
+            }
+        }))
     }
 
-    routing() {
-        this.app.use(routerIndex)
-    }
 }
 
 module.exports = new App().app
