@@ -64,20 +64,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false
     },
   }, {
+    // Mover esta logica para o controller
     hooks: {
       beforeSave: async (user) => {
         user.password_hash = await bcrypt.hash(user.password, 10)
-        // console.log('beforeSave')
       },
-
-      beforeUpdate: async (user) => {
-        console.log(user.password_hash)
-        console.log(user.password)
-
-        let isValid = await bcrypt.compare(user.password, user.password_hash)
-        if (isValid) {}
-        console.log(isValid)
-      }
 
     },
     sequelize,

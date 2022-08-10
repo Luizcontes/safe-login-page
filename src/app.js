@@ -1,7 +1,7 @@
 const express = require('express')
-const routerIndex = require('./routes/index')
-var cookieParser = require('cookie-parser')
-var session = require('express-session')
+const routes = require('./routes/routes')
+const cookieParser = require('cookie-parser')
+const path = require('path')
 
 class App {
     constructor() {
@@ -11,15 +11,11 @@ class App {
 
     middlewares() {
         this.app.use(express.json())
-        this.app.use(routerIndex)
+        this.app.use(routes)
         this.app.use(cookieParser())
-        this.app.use(session({
-            secret: "Shh, its a secret",
-            name: 'session',
-            cookie: {
-                maxAge: 60000
-            }
-        }))
+        this.app.use(express.static(path.join(__dirname, 'public')))
+        this.app.set('view engine', 'ejs')
+        this.app.set('views', path.resolve(__dirname, './views'))
     }
 
 }
