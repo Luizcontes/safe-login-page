@@ -1,58 +1,65 @@
-const { user } = require('../database/models')
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
 const { StatusCodes } = require('http-status-codes')
-const crypto = require('crypto')
-const indexService = require('../service/indexService')
+const ValidationService = require('../service/validationService')
+const logMsgs = require('../service/errorHandler')
+const mailerService = require('../service/mailerService')
 
-class SessionController {
+class LoginController {
 
+    /* 
+     *  when the user tries to subscribe for the first time,
+     *  this method takes the email and password, encrypt it, 
+     *  generates a uuid number, stores it in the DB and set
+     *  the validated field as false
+     */
     async register(req, res) {
-
-        res.status(StatusCodes.OK).render('login')
+        const { email, password } = req.body
+        const isUserRegistered = await ValidationService.isUserReg(email)
+        if (!isUserRegistered) {
+            const user = await ValidationService.registerUser(email, password)
+            if (user) {
+                const isEmailSent = await mailerService.sendMail()
+                if (isEmailSent) {
+                    res.status(StatusCodes.OK).json(logMsgs.registered)
+                }
+                else {
+                    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(logMsgs.emailServer)
+                }
+            } else {
+                res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(logMsgs.serverProblem)
+            }
+        } else {
+            res.status(StatusCodes.BAD_REQUEST).json(logMsgs.userRegistered)
+        }
     }
 
+    /* 
+     *  method called when the user clicks in the link sent by e-mail
+     *  and starts the e-mail validation process in the database
+     */
+    async validate(req, res, next) {
+        const isValid = await ValidationService
+            .validateUser(req.params, req.query.email)
+        if (isValid) {
+            res.send('<h1>E-mail validado com sucesso!!!</h1>')
+        }
+        else {
+            res.status(StatusCodes.FORBIDDEN).json(logMsgs.emailServer)
+        }
+    }
+
+    /* 
+     *  method created to verify users credentials and generate a token
+     *  to keep the session running with the same client 
+     */
     async authenticate(req, res) {
 
-        try {
-            const { email, password } = req.body
-            console.log(req.originalUrl)
-            const usuario = await user.findOne({ where: { email } })
-            if (!usuario) {
-                throw {msg:'user not found', cod:0}
-            }
-            else if (true) {
-
-            } else {
-                console.log('Usuario cadastrado')
-            }
-            // if (usuario) {
-            //     const { uuid, name } = usuario
-
-            //     const secretKey = crypto.randomBytes(64).toString('hex')
-            //     const payload = { user: { uuid, name, email } }
-            //     const jwtToken = jwt.sign(payload, secretKey, { expiresIn: '1h' })
-
-            //     const verified = jwt.verify(jwtToken, secretKey)
-            //     // console.log(verified)
-
-            //     console.log(req.headers.authorization.slice(7))
-
-            //     if (await bcrypt.compare(password, usuario.password_hash)) {
-
-            //         // console.log(jwtToken)
-            //         return res.status(StatusCodes.OK).json({ token: jwtToken })
-            //     } else {
-            //         return res.status(StatusCodes.FORBIDDEN).send('Incorrect Password')
-            //     }
-            // } else {
-            //     res.status(StatusCodes.BAD_REQUEST).send('User not subcribed')
-            // }
-
-
-        } catch (error) {
-            // console.log(error)
-            res.status(StatusCodes.BAD_REQUEST).json(error)
+        const userState = await ValidationService.checkUser(req.body)
+        if (userState) {
+            const token = await ValidationService.generateToken()
+            console.log(token)
+            res.status(StatusCodes.OK).json(logMsgs.logged)
+        } else {
+            res.status(StatusCodes.BAD_REQUEST).json(logMsgs.invalidCredentials)
         }
     }
 
@@ -61,4 +68,4 @@ class SessionController {
     }
 }
 
-module.exports = new SessionController()
+module.exports = new LoginController()

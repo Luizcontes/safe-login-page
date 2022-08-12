@@ -79,4 +79,4 @@ class IndexController {
     }
 }
 
-module.exports = new IndexController()
+// module.exports = new IndexController()

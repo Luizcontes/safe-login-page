@@ -1,32 +1,22 @@
-const express = require('express')
+// const express = require('express')
 const { Router } = require('express')
 const router = Router()
 const { StatusCodes } = require('http-status-codes')
 
-// express.use(express.static('public'))
+/* 
+ *  routes used to execute actions in the database
+ */
+const LoginController = require('../controllers/loginController')
+router.post('/login', LoginController.authenticate)
+router.post('/register', LoginController.register)
+router.get('/checking/:uuid', LoginController.validate)
 
-const loginController = require('../controllers/loginController')
-router.post('/login', loginController.authenticate)
-router.post('/register', loginController.register)
+/* 
+ *  Main route to render the front-end to the client
+ */
+router.get('/', (req, res) => res.status(StatusCodes.OK).render('login'))
+router.get('/register', (req, res) => res.render('login'))
+router.get('/forgot', (req, res) => res.render('login'))
 
-const indexController = require('../controllers/indexController')
-router.get('/users', indexController.getAll)
-router.get('/users/:email', indexController.getByEmail)
-router.post('/users', indexController.create)
-router.put('/users/', indexController.update)
-
-
-// router.get('/:hash', (req, res) => {
-
-//     console.log(req.params.hash)
-
-//     return res.send('E-mail validated succesfully')
-// })
-
-
-router.get('/', (req, res) => {
-
-    return res.status(StatusCodes.OK).render('login')
-})
 
 module.exports = router

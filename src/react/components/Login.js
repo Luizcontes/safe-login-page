@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-function Login({ logStatus, click, email, emailChange, password, passChange }) {
+function Login({ props }) {
+    const { logStatus, click, email, emailChange, password, passChange } = props
 
     return (
         <section className="formulario my-4 mx-5">
@@ -16,7 +17,7 @@ function Login({ logStatus, click, email, emailChange, password, passChange }) {
                             <div className="form-row pt-3">
                                 <div className="col-lg-12">
                                     <input className="form-control my-3 p-2" type="e-mail" onChange={emailChange} value={email} placeholder="Your e-mail" />
-                                    <p className='error'>{logStatus}</p>
+                                    <p className='error'>{logStatus[1]}</p>
                                 </div>
                             </div>
                             <div className="form-row">
