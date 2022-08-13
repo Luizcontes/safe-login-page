@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import axios from 'axios'
 import Login from './components/Login'
 import Container from './components/Container'
+import Logged from './components/Logged'
 
 
 function App() {
@@ -51,11 +52,28 @@ function App() {
                 case '3':
                     setMsgAlert(response.msg)
                     break
+                case '4':
+                    setMsgAlert(response.msg)
+                    break
+                case '5':
+                    setMsgAlert(response.msg)
+                    break
+                case '6':
+                    setMsgAlert(response.msg)
+                    break
+                case '7':
+                    setMsgAlert(response.msg)
+                    break
+                case '8':
+                    setMsgAlert(response.data.msg)
+                    setStatusCod(response.data.cod)
+                    break
                 case '9':
                     setMsgAlert(response.data.msg)
                     setStatusCod(response.data.cod)
                     break
             }
+            console.log(response.data.msg)
         }
     }
 
@@ -78,10 +96,17 @@ function App() {
         reset: resetFields
     }
 
+    let result
+    if (statusCod === '8') {
+        result = <Logged props={props}/>
+    } else {
+        result = <Login props={props} />
+    }
+    
     return (
         <BrowserRouter>
             <Routes>
-                <Route path='/' element={<Login props={props} />} />
+                <Route path='/' element={result} />
 
                 {/* <Route path='/forgot' element={} */}
 

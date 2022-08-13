@@ -2,14 +2,17 @@
 const { Router } = require('express')
 const router = Router()
 const { StatusCodes } = require('http-status-codes')
+const authMiddleware = require('../middlewares/authMiddleware')
 
 /* 
  *  routes used to execute actions in the database
  */
 const LoginController = require('../controllers/loginController')
-router.post('/login', LoginController.authenticate)
 router.post('/register', LoginController.register)
 router.get('/checking/:uuid', LoginController.validate)
+
+router.use(authMiddleware)
+router.post('/login', LoginController.authenticate)
 
 /* 
  *  Main route to render the front-end to the client

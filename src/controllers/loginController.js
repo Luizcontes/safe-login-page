@@ -52,12 +52,19 @@ class LoginController {
      *  to keep the session running with the same client 
      */
     async authenticate(req, res) {
-
-        const userState = await ValidationService.checkUser(req.body)
-        if (userState) {
-            const token = await ValidationService.generateToken()
-            console.log(token)
-            res.status(StatusCodes.OK).json(logMsgs.logged)
+        if (req.auth) {
+            return res.status(StatusCodes.OK).json(logMsgs.logged)
+        }
+        const userCheck = await ValidationService.checkUser(req.body)
+        if (userCheck) {
+            const isValid = ValidationService.isValidTrue()
+            if (isValid) {
+                const token = await ValidationService.generateToken(req.headers.authorization)
+                console.log(req)
+                res.clearCookie().status(StatusCodes.OK).json(logMsgs.logged).send()
+            } else {
+                res.status(StatusCodes.FORBIDDEN).json(logMsgs.notValidated)
+            }
         } else {
             res.status(StatusCodes.BAD_REQUEST).json(logMsgs.invalidCredentials)
         }

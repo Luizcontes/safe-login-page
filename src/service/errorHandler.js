@@ -19,6 +19,14 @@ const logMsgs = {
         cod: '5',
         msg: 'Invalid user or password.'
     },
+    notValidated: {
+        cod: '6',
+        msg: 'User not validated.'
+    },
+    logged: {
+        cod: '7',
+        msg: 'Session valid.'
+    },
     logged: {
         cod: '8',
         msg: 'You`re logged in.'

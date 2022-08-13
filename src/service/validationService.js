@@ -11,32 +11,39 @@ const jwt = require('jsonwebtoken')
 class ValidationService {
     constructor() {
         this.user = ''
+        this.secretKey = 'a5638a895ab58685bdd260cd531437e603c17c48bba1b57963881fc09012c6ad6fbd31383bdb9cec454b8c37d52aea8ffb47a3336004e716d329d429d1f17502'
     }
 
     // method to check is e-mail and password provided are correct!
     async checkUser({ email, password }) {
         const isSubscribed = await this.isUserReg(email)
-        const isPassCorrect = this.isPassCorrect(password)
+        const isPassCorrect = await this.isPassCorrect(password)
         if (isSubscribed && isPassCorrect) {
             return true
         } else {
             return false
         }
     }
-    
+
     /*  
      *  token generated, and from now on the connection is just kept
      *  while the token is valid 
     */
-    async generateToken() {
+    async generateToken(auth) {
         const { uuid, email } = this.user.dataValues
-        const secretKey = crypto.randomBytes(64).toString('hex')
         const payload = { user: { uuid, email } }
-        const jwtToken = jwt.sign(payload, secretKey, { expiresIn: '1h' })
-        console.log(jwtToken)
+        return jwt.sign(payload, this.secretKey, { expiresIn: '3m' })
+    }
 
-        const verified = jwt.verify(jwtToken, secretKey)
-        return verified
+    // checks if the user has a valid token
+    async verifyToken(jwtToken) {
+        try {
+            const verified = jwt.verify(jwtToken, this.secretKey)
+            return true
+        } catch (error) {
+            console.log(error)
+            return false
+        }
     }
 
     /* 
@@ -118,7 +125,8 @@ class ValidationService {
     // checks if the password after being crypted matches the hashed pass in the DB
     async isPassCorrect(password) {
         try {
-            return await bcrypt.compare(password, this.user.dataValues.password_hash)
+            const pass = await bcrypt.compare(password, this.user.dataValues.password_hash)
+            return pass
         } catch (error) {
             console.log(error)
             return false

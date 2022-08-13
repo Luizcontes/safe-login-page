@@ -17,7 +17,7 @@ function Login({ props }) {
                             <div className="form-row pt-3">
                                 <div className="col-lg-12">
                                     <input className="form-control my-3 p-2" type="e-mail" onChange={emailChange} value={email} placeholder="Your e-mail" />
-                                    <p className='error'>{logStatus[1]}</p>
+                                    <p className='error'>{logStatus}</p>
                                 </div>
                             </div>
                             <div className="form-row">
