@@ -34,6 +34,10 @@ const logMsgs = {
     registered: {
         cod: '9',
         msg: 'To validate your account, check your e-mail folder and click in the link sent.'
+    },
+    redefine: {
+        cod: '10',
+        msg: 'To redefine your password, check your e-mail folder and click in the link sent.'
     }
 }
 

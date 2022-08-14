@@ -5,7 +5,8 @@ import axios from 'axios'
 import Login from './components/Login'
 import Container from './components/Container'
 import Logged from './components/Logged'
-
+import Notfound from './components/Notfound'
+import Forgot from './components/Forgot'
 
 function App() {
 
@@ -13,12 +14,22 @@ function App() {
     const [password, setPassword] = useState('')
     const [logged, setLogged] = useState(false)
     const [msgAlert, setMsgAlert] = useState('')
-    const [statusCod, setStatusCod] = useState(0)
+    const [statusCod, setStatusCod] = useState('')
 
     useEffect(() => {
-        setMsgAlert('')
-        setStatusCod(0)
-    }, [email, password])
+        (async function initial() {
+            let initial = await axios.post(`/login`)
+            if (initial.status === 200) {
+                setMsgAlert(initial.data.msg)
+                setStatusCod(initial.data.cod)
+            }
+        })()
+    }, [])
+
+    // useEffect(() => {
+    //     setMsgAlert('')
+    //     setStatusCod('0')
+    // }, [email, password])
 
     function resetFields() {
         setEmail('')
@@ -37,7 +48,9 @@ function App() {
 
     async function onLogginHandler(e) {
 
-        if (!(email && password)) {
+        // console.log(!(email && e.target.id === 'forgot'))
+        // console.log(email)
+        if (!(email && password) && !(email && e.target.id === 'forgot')) {
             alert('There is a missing field')
         }
         else {
@@ -73,7 +86,6 @@ function App() {
                     setStatusCod(response.data.cod)
                     break
             }
-            console.log(response.data.msg)
         }
     }
 
@@ -96,21 +108,25 @@ function App() {
         reset: resetFields
     }
 
-    let result
+    let result = ''
+    // console.log(msgAlert)
+    // console.log(statusCod)
     if (statusCod === '8') {
-        result = <Logged props={props}/>
-    } else {
+        result = <Logged props={props} />
+    } else if (statusCod === '0') {
         result = <Login props={props} />
     }
-    
+
     return (
         <BrowserRouter>
             <Routes>
                 <Route path='/' element={result} />
 
-                {/* <Route path='/forgot' element={} */}
+                <Route path='/forgot' element={<Forgot props={props} />} />
 
                 <Route path='/register' element={<Container props={props} />} />
+                
+                <Route path='*' element={<Notfound />} />
             </Routes>
         </BrowserRouter >
     )

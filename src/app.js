@@ -10,10 +10,10 @@ class App {
     }
 
     middlewares() {
-        this.app.use(express.json())
-        this.app.use(routes)
         this.app.use(cookieParser())
+        this.app.use(express.json())
         this.app.use(express.static(path.join(__dirname, 'public')))
+        this.app.use(routes)
         this.app.set('view engine', 'ejs')
         this.app.set('views', path.resolve(__dirname, './views'))
     }

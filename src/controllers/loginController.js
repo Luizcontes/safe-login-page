@@ -51,27 +51,59 @@ class LoginController {
      *  method created to verify users credentials and generate a token
      *  to keep the session running with the same client 
      */
-    async authenticate(req, res) {
-        if (req.auth) {
-            return res.status(StatusCodes.OK).json(logMsgs.logged)
-        }
-        const userCheck = await ValidationService.checkUser(req.body)
-        if (userCheck) {
-            const isValid = ValidationService.isValidTrue()
-            if (isValid) {
-                const token = await ValidationService.generateToken(req.headers.authorization)
-                console.log(req)
-                res.clearCookie().status(StatusCodes.OK).json(logMsgs.logged).send()
+    async authenticate(req, res, next) {
+        // console.log(req.body)
+        if (!req.cookies.authorization) {
+            const userCheck = await ValidationService.checkUser(req.body)
+            if (userCheck) {
+                const isValid = ValidationService.isValidTrue()
+                if (isValid) {
+                    const token = await ValidationService
+                        .generateToken(req.headers.authorization)
+                    res.cookie('authorization', token, {
+                        httpOnly: true,
+                        maxAge: 60000
+                    })
+                        .cookie('teste', 'azul')
+                        .status(StatusCodes.OK)
+                        .json(logMsgs.logged)
+                } else {
+                    res.clearCookie()
+                        .status(StatusCodes.FORBIDDEN)
+                        .json(logMsgs.notValidated)
+                }
             } else {
-                res.status(StatusCodes.FORBIDDEN).json(logMsgs.notValidated)
+                res.clearCookie()
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json(logMsgs.invalidCredentials)
             }
         } else {
-            res.status(StatusCodes.BAD_REQUEST).json(logMsgs.invalidCredentials)
+            res.status(StatusCodes.OK).json(logMsgs.logged)
         }
     }
 
-    async update(req, res) {
+    async forgotPass(req, res) {
+        const isUserRegistered = await ValidationService.isUserReg(req.body.email)
+        ValidationService.recoverAccount()
+        const isEmailSent = await mailerService.sendMail()
+        if (isEmailSent) {
+            res.status(StatusCodes.OK).json(logMsgs.redefine)
+        }
+        else {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(logMsgs.emailServer)
+        }
+        res.status(StatusCodes.OK)
+    }
 
+    async resetPass(req, res) {
+        const isUserRegistered = await ValidationService.isUserReg(req.query.email)
+        console.log(isUserRegistered)
+        if (isUserRegistered) {
+            res.send('<h1>A escolher senha!!!</h1>')
+        }
+        else {
+            res.status(StatusCodes.FORBIDDEN).json(logMsgs.emailServer)
+        }
     }
 }
 

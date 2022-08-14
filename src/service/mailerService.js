@@ -11,12 +11,18 @@ class Mailer {
     }
 
     // creates the msg template to be sent
-    setMsgInfo(uuid, email) {
+    setMsgInfo(uuid, email, subject) {
+        let linkMsg = ''
+        if (subject === 'checking') {
+            linkMsg = 'Clique aqui para validar seu email'
+        } else {
+            linkMsg = 'Clique aqui para redefinir a sua senha'
+        }
         this.msg = {
             to: email, // Change to your recipient
             from: 'contes.dev@hotmail.com', // Change to your verified sender
             subject: 'Contes Store - E-mail validation',
-            html: `<a href="http://localhost:8080/checking/${uuid}?email=${email}">Clique aqui para validar seu email</a>`
+            html: `<a href="http://localhost:8080/${subject}/${uuid}?email=${email}">${linkMsg}</a>`
         }
     }
 

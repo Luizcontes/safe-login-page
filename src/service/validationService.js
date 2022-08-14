@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const mailerService = require('../service/mailerService')
 const crypto = require('crypto')
 const jwt = require('jsonwebtoken')
+const { MailService } = require('@sendgrid/mail')
 
 /* 
  *  Service created to deal with user`s validations, in the whole
@@ -32,7 +33,7 @@ class ValidationService {
     async generateToken(auth) {
         const { uuid, email } = this.user.dataValues
         const payload = { user: { uuid, email } }
-        return jwt.sign(payload, this.secretKey, { expiresIn: '3m' })
+        return jwt.sign(payload, this.secretKey, { expiresIn: '1m' })
     }
 
     // checks if the user has a valid token
@@ -54,12 +55,25 @@ class ValidationService {
         const password_hash = await this.getHashPass(password)
         const isNewUser = await dbService.create(email, password_hash)
         if (isNewUser) {
-            mailerService.setMsgInfo(isNewUser.dataValues.uuid, email)
+            mailerService.setMsgInfo(isNewUser.dataValues.uuid, email, 'checking')
             return true
         }
         else {
             return false
         }
+    }
+
+    /* 
+     *  Sets up te e-mail msg to be sent for password redefinition
+     */
+    async recoverAccount() {
+        mailerService.setMsgInfo(
+            this.user.dataValues.uuid,
+            this.user.dataValues.email,
+            'recover'
+        )
+        // mailerService.printMsg()
+        return true
     }
 
     /* 

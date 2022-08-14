@@ -1,23 +1,30 @@
-import React from 'react'
-import Alert from './Alert'
-import Register from './Register'
+import React, { useEffect, useState } from 'react'
+import Logged from './Logged'
+import Login from './Login'
 
 function Container({ props }) {
-    const { statusCod, logStatus, click, email, emailChange, password, passChange } = props
 
-    let result
-    if (statusCod === '9') {
-        result = <Alert props={props}/>
-    } else {
-        result = <Register props={props} />
+    const [result, setResult] = useState(<Login props={props} />)
+
+    useEffect(() => {
+        renderComponent()
+    }, [props.statusCod])
+
+    // setInterval(() => {
+    //     console.log(props)
+    // },3000)
+
+    const renderComponent = () => {
+        switch (props.statusCod) {
+            case '0':
+                setResult(<Login props={props} />)
+                break;
+            case '8':
+                setResult(<Logged props={props} />)
+                break;
+        }
     }
-
-    return (
-        <>
-        {result}      
-        </>
-    )
-
+    return (<>{result}</>)
 }
 
 export default Container

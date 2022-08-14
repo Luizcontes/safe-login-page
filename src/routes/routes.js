@@ -9,9 +9,11 @@ const authMiddleware = require('../middlewares/authMiddleware')
  */
 const LoginController = require('../controllers/loginController')
 router.post('/register', LoginController.register)
+router.post('/forgot', LoginController.forgotPass)
 router.get('/checking/:uuid', LoginController.validate)
+router.get('/recover/:uuid', LoginController.resetPass)
 
-router.use(authMiddleware)
+
 router.post('/login', LoginController.authenticate)
 
 /* 
