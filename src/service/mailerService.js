@@ -8,10 +8,14 @@ class Mailer {
     constructor() {
         this.sgMail = sgMail.setApiKey(process.env.EMAIL_PASS)
         this.msg = ''
+        this.title = [
+            'Contes Store - E-mail validation',
+            'Contes Store - Reset your password'
+        ]
     }
 
     // creates the msg template to be sent
-    setMsgInfo(uuid, email, subject) {
+    setMsgInfo(uuid, email, subject, title) {
         let linkMsg = ''
         if (subject === 'checking') {
             linkMsg = 'Clique aqui para validar seu email'
@@ -21,7 +25,7 @@ class Mailer {
         this.msg = {
             to: email, // Change to your recipient
             from: 'contes.dev@hotmail.com', // Change to your verified sender
-            subject: 'Contes Store - E-mail validation',
+            subject: this.title[title],
             html: `<a href="http://localhost:8080/${subject}/${uuid}?email=${email}">${linkMsg}</a>`
         }
     }

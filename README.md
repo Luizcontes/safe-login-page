@@ -5,7 +5,7 @@ THINGS I SHOULD FOCUS ON NEXT
 
 improve: alert message for empty email and password fields
 improve: container pop-up after being registered
-improve: conditional rendering code on validating JWT Login component
+improve: page error upon trying to use the validation link more them one time
 improve: JWT token storage (now it is stored in the cookie which is not pretty safe)
 
 implement: password strenght checker script

@@ -5,12 +5,10 @@ const mailerService = require('../service/mailerService')
 
 class LoginController {
 
-    /* 
-     *  when the user tries to subscribe for the first time,
-     *  this method takes the email and password, encrypt it, 
-     *  generates a uuid number, stores it in the DB and set
-     *  the validated field as false
-     */
+    //  when the user tries to subscribe for the first time,
+    //  this method takes the email and password, encrypt it, 
+    //  generates a uuid number, stores it in the DB and set
+    //  the validated field as false
     async register(req, res) {
         const { email, password } = req.body
         const isUserRegistered = await ValidationService.isUserReg(email)
@@ -22,20 +20,18 @@ class LoginController {
                     res.status(StatusCodes.OK).json(logMsgs.registered)
                 }
                 else {
-                    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(logMsgs.emailServer)
+                    res.status(StatusCodes.OK).json(logMsgs.emailServer)
                 }
             } else {
-                res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(logMsgs.serverProblem)
+                res.status(StatusCodes.OK).json(logMsgs.serverProblem)
             }
         } else {
-            res.status(StatusCodes.BAD_REQUEST).json(logMsgs.userRegistered)
+            res.status(StatusCodes.OK).json(logMsgs.userRegistered)
         }
     }
 
-    /* 
-     *  method called when the user clicks in the link sent by e-mail
-     *  and starts the e-mail validation process in the database
-     */
+    //  method called when the user clicks in the link sent by e-mail
+    //  and starts the e-mail validation process in the database
     async validate(req, res, next) {
         const isValid = await ValidationService
             .validateUser(req.params, req.query.email)
@@ -43,17 +39,14 @@ class LoginController {
             res.send('<h1>E-mail validado com sucesso!!!</h1>')
         }
         else {
-            res.status(StatusCodes.FORBIDDEN).json(logMsgs.emailServer)
+            res.status(StatusCodes.FORBIDDEN).json(logMsgs.invalidLink)
         }
     }
 
-    /* 
-     *  method created to verify users credentials and generate a token
-     *  to keep the session running with the same client 
-     */
+    //  method created to verify users credentials and generate a token
+    //  to keep the session running with the same client 
     async authenticate(req, res, next) {
-        // console.log(req.body)
-        if (!req.cookies.authorization) {
+        if (Object.keys(req.body).length) {
             const userCheck = await ValidationService.checkUser(req.body)
             if (userCheck) {
                 const isValid = ValidationService.isValidTrue()
@@ -62,48 +55,64 @@ class LoginController {
                         .generateToken(req.headers.authorization)
                     res.cookie('authorization', token, {
                         httpOnly: true,
-                        maxAge: 60000
+                        maxAge: 30000
                     })
-                        .cookie('teste', 'azul')
                         .status(StatusCodes.OK)
                         .json(logMsgs.logged)
                 } else {
                     res.clearCookie()
-                        .status(StatusCodes.FORBIDDEN)
+                        .status(StatusCodes.OK)
                         .json(logMsgs.notValidated)
                 }
             } else {
                 res.clearCookie()
-                    .status(StatusCodes.BAD_REQUEST)
+                    .status(StatusCodes.OK)
                     .json(logMsgs.invalidCredentials)
             }
         } else {
-            res.status(StatusCodes.OK).json(logMsgs.logged)
+            const isValidToken = await ValidationService.verifyToken(req.cookies.authorization)
+            if (isValidToken) {
+                res.status(StatusCodes.OK).json(logMsgs.logged)
+            } else {
+                res.status(StatusCodes.OK).json(logMsgs.notLogged)
+            }
         }
     }
 
+    // if the user loses access to it`s account, after validating that the
+    // is in our database we proceed to send him a link to reset his password
     async forgotPass(req, res) {
         const isUserRegistered = await ValidationService.isUserReg(req.body.email)
-        ValidationService.recoverAccount()
-        const isEmailSent = await mailerService.sendMail()
-        if (isEmailSent) {
-            res.status(StatusCodes.OK).json(logMsgs.redefine)
+        if (isUserRegistered) {
+            ValidationService.recoverAccount()
+            const isEmailSent = await mailerService.sendMail()
+            if (isEmailSent) {
+                res.status(StatusCodes.OK).json(logMsgs.redefined)
+            }
+            else {
+                res.status(StatusCodes.OK).json(logMsgs.emailServer)
+            }
+        } else {
+            res.status(StatusCodes.OK).json(logMsgs.notValidated)
         }
-        else {
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(logMsgs.emailServer)
-        }
-        res.status(StatusCodes.OK)
     }
 
-    async resetPass(req, res) {
-        const isUserRegistered = await ValidationService.isUserReg(req.query.email)
-        console.log(isUserRegistered)
-        if (isUserRegistered) {
-            res.send('<h1>A escolher senha!!!</h1>')
+    async getResetPass(req, res) {
+        const isValid = await ValidationService
+            .validateUserPass(req.params, req.query.email)
+            console.log(req.params)
+        if (isValid) {
+            res.status(StatusCodes.OK).redirect(
+                `/reset/${req.params.uuid}?email=${req.query.email}`)
         }
         else {
-            res.status(StatusCodes.FORBIDDEN).json(logMsgs.emailServer)
+            console.log('aqui')
+            res.status(StatusCodes.FORBIDDEN).json(logMsgs.invalidLink)
         }
+    }
+
+    async reset(req, res) {
+
     }
 }
 

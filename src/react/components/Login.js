@@ -2,9 +2,9 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 function Login({ props }) {
-    const { msgAlert, click , email, emailChange, password, passChange, ...rest } = props
+    const { logStatus, click , email, emailChange, password, passChange, ...rest } = props
 
-    console.log(emailChange)
+    // console.log(props)
     return (
         <section className="formulario my-4 mx-5">
             <div className="container-fluid">
@@ -23,7 +23,7 @@ function Login({ props }) {
                             <div className="form-row">
                                 <div className="col-lg-12">
                                     <input className="form-control my-3 p-2" type="password" onChange={passChange} value={password} placeholder="***************" />
-                                    <p className='error'>{msgAlert}</p>
+                                    <p className='error'>{logStatus}</p>
                                 </div>
                             </div>
                             <div className="form-row">

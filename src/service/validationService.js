@@ -17,29 +17,31 @@ class ValidationService {
 
     // method to check is e-mail and password provided are correct!
     async checkUser({ email, password }) {
-        const isSubscribed = await this.isUserReg(email)
-        const isPassCorrect = await this.isPassCorrect(password)
-        if (isSubscribed && isPassCorrect) {
-            return true
+        if (email && password) {
+            const isSubscribed = await this.isUserReg(email)
+            const isPassCorrect = await this.isPassCorrect(password)
+            if (isSubscribed && isPassCorrect) {
+                return true
+            } else {
+                return false
+            }
         } else {
             return false
         }
     }
 
-    /*  
-     *  token generated, and from now on the connection is just kept
-     *  while the token is valid 
-    */
+    //  token generated, and from now on the connection is just kept
+    //  while the token is valid 
     async generateToken(auth) {
         const { uuid, email } = this.user.dataValues
         const payload = { user: { uuid, email } }
-        return jwt.sign(payload, this.secretKey, { expiresIn: '1m' })
+        return jwt.sign(payload, this.secretKey, { expiresIn: '30s' })
     }
 
     // checks if the user has a valid token
     async verifyToken(jwtToken) {
         try {
-            const verified = jwt.verify(jwtToken, this.secretKey)
+            jwt.verify(jwtToken, this.secretKey)
             return true
         } catch (error) {
             console.log(error)
@@ -47,15 +49,18 @@ class ValidationService {
         }
     }
 
-    /* 
-     *  generates de hash pass, persists the user in the DB and
-     *  sets up the information to send the e-mail validation
-     */
+    //  generates de hash pass, persists the user in the DB and
+    //  sets up the information to send the e-mail validation
     async registerUser(email, password) {
         const password_hash = await this.getHashPass(password)
         const isNewUser = await dbService.create(email, password_hash)
         if (isNewUser) {
-            mailerService.setMsgInfo(isNewUser.dataValues.uuid, email, 'checking')
+            mailerService.setMsgInfo(
+                isNewUser.dataValues.uuid,
+                email,
+                'checking',
+                0
+            )
             return true
         }
         else {
@@ -63,23 +68,19 @@ class ValidationService {
         }
     }
 
-    /* 
-     *  Sets up te e-mail msg to be sent for password redefinition
-     */
+    //  Sets up te e-mail msg to be sent for password redefinition
     async recoverAccount() {
         mailerService.setMsgInfo(
             this.user.dataValues.uuid,
             this.user.dataValues.email,
-            'recover'
+            'recover',
+            1
         )
-        // mailerService.printMsg()
         return true
     }
 
-    /* 
-     *  when the user tries to get it`s first access
-     *  this method creates the hash password
-    */
+    //  when the user tries to get it`s first access
+    //  this method creates the hash password
     async validateUser(uuid, email) {
         try {
             const isUserReg = await this.isUserReg(email)
@@ -100,6 +101,23 @@ class ValidationService {
         }
     }
 
+
+
+    async validateUserPass(uuid, email) {
+        try {
+            const isUserReg = await this.isUserReg(email)
+            const isUUIDCorrect = this.isUUIDCorrect(uuid)
+            const isValidTrue = this.isValidTrue()
+            if (isUUIDCorrect && isUserReg && isValidTrue) {
+                return true
+            } else {
+                return false
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     // sets the validated field in the DB to true
     async updateValidUser() {
         const isUpdated = await dbService.validate(this.user)
@@ -110,9 +128,18 @@ class ValidationService {
         }
     }
 
-    /* 
-     * encrypts the password provided by the user in the first access
-    */
+    // async updateUserPass()
+
+    // async updatePass() {
+    //     const isUpdated = await dbService.validate(this.user)
+    //     if (isUpdated) {
+    //         return true
+    //     } else {
+    //         return false
+    //     }
+    // }
+
+    //  encrypts the password provided by the user in the first access
     async getHashPass(pass) {
         return await bcrypt.hash(pass, 10)
     }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-function Lightbox({ props }) {
+function Register({ props }) {
     const { logStatus, click, email, emailChange, password, passChange } = props
 
     return (
@@ -39,4 +39,4 @@ function Lightbox({ props }) {
     )
 }
 
-export default Lightbox
+export default Register
