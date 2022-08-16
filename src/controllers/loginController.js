@@ -2,6 +2,7 @@ const { StatusCodes } = require('http-status-codes')
 const ValidationService = require('../service/validationService')
 const logMsgs = require('../service/errorHandler')
 const mailerService = require('../service/mailerService')
+const e = require('express')
 
 class LoginController {
 
@@ -97,13 +98,22 @@ class LoginController {
         }
     }
 
+    // when the user access the e-mail sent in the password reseting request
+    // he is automatically redirected to a page to reset his password
     async getResetPass(req, res) {
         const isValid = await ValidationService
             .validateUserPass(req.params, req.query.email)
-            console.log(req.params)
+        console.log(req.params)
+        console.log(req.query)
         if (isValid) {
-            res.status(StatusCodes.OK).redirect(
-                `/reset/${req.params.uuid}?email=${req.query.email}`)
+            // res.status(StatusCodes.OK).redirect('/')
+            res.cookie('uuid', req.params.uuid, {
+                maxAge: 60000
+            })
+            res.cookie('email', req.query.email, {
+                maxAge: 60000
+            })
+            res.status(StatusCodes.OK).redirect('/reset')
         }
         else {
             console.log('aqui')
@@ -112,7 +122,28 @@ class LoginController {
     }
 
     async reset(req, res) {
-
+        const { uuid, email } = req.cookies
+        const { password, password2 } = req.body
+        if ((password === password2) && password.length !== 0 && password2 !== 0) {
+            if (uuid !== undefined && email !== undefined) {
+                // console.log(email)
+                const isPassUpdated = ValidationService.updatePass(password, email)
+                if (isPassUpdated) {
+                    console.log('updated')
+                    res.clearCookie()
+                    res.json(logMsgs.passUpdated)
+                } else {
+                    console.log('is not updated')
+                    res.json(logMsgs.serverProblem)
+                }
+            }
+            else {
+                console.log('email undefined')
+                res.json(logMsgs.timeExpired)
+            }
+        } else {
+            res.json(logMsgs.emptyPasses)
+        }
     }
 }
 

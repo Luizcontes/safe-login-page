@@ -2,12 +2,12 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 function Forgot({ props }) {
-    const { logStatus, click, email, emailChange, password, passChange } = props
+    const { logStatus, click, email, emailChange, reset } = props
 
     return (
         <div className='lightbox lightbox-hidden'>
             <div className="container-fluid">
-                <Link to='/'><div id="close"></div></Link>
+                <Link to='/'><div onClick={reset} id="close"></div></Link>
                 <div className="row justify-content-center">
                     <div className="col-lg-12 px-5 py-5">
 

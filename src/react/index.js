@@ -3,11 +3,11 @@ import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom'
 import { createRoot } from 'react-dom/client'
 import axios from 'axios'
 import Login from './components/Login'
-import Container from './components/Container'
 import Logged from './components/Logged'
 import Notfound from './components/Notfound'
 import Forgot from './components/Forgot'
 import Reset from './components/Reset'
+import Register from './components/Register'
 
 function App() {
 
@@ -62,48 +62,14 @@ function App() {
 
     async function onLogginHandler(e) {
 
-        if (!(email && password) && !(email && e.target.id === 'forgot')) {
+        if (!(email && password) && !(email && e.target.id === 'forgot') && !(password === password2)) {
             alert('There is a missing field')
         }
         else {
             let response = await logUser(e.target.id)
-            // console.log(response)
-            switch (response.cod || response.data.cod) {
-                case '1':
-                    setMsgAlert(response.data.msg)
-                    break
-                case '2':
-                    setMsgAlert(response.data.msg)
-                    break
-                case '3':
-                    setMsgAlert(response.data.msg)
-                    break
-                case '4':
-                    setMsgAlert(response.data.msg)
-                    break
-                case '5':
-                    setMsgAlert(response.data.msg)
-                    break
-                case '6':
-                    setMsgAlert(response.data.msg)
-                    break
-                case '7':
-                    setMsgAlert(response.data.msg)
-                    break
-                case '8':
-                    setMsgAlert(response.data.msg)
-                    setStatusCod(response.data.cod)
-                    setLogged(true)
-                    break
-                case '9':
-                    setMsgAlert(response.data.msg)
-                    setStatusCod(response.data.cod)
-                    break
-                case '10':
-                    setMsgAlert(response.data.msg)
-                    setStatusCod(response.data.cod)
-                    break
-            }
+            setMsgAlert(response.data.msg)
+            setStatusCod(response.data.cod)
+            setLogged(response.data.logged)
         }
     }
 
@@ -145,13 +111,11 @@ function App() {
 
                 <Route path='/forgot' element={<Forgot props={props} />} />
 
-                <Route path='/register' element={<Container props={props} />} />
+                <Route path='/register' element={<Register props={props} />} />
 
-                <Route path='reset'>
-                    <Route path=':uuid' element={<Reset props={props} />} />
-                </Route>
+                <Route path='/reset' element={<Reset props={props} />} />
 
-                <Route path='*' element={<Notfound />} />
+                <Route path='*' element={<Notfound props={props} />} />
             </Routes>
         </BrowserRouter >
     )

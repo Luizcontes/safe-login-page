@@ -45,6 +45,15 @@ class DatabaseService {
             console.log(error)
         }
     }
+    
+    // this method updates the user`s password
+    async updatePass(user, pass) {
+        try {
+            return await user.update({ password_hash: pass })
+        } catch (error) {
+            console.log(error)
+        }
+    }
 }
 
 module.exports = new DatabaseService()

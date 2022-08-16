@@ -1,13 +1,13 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 function Reset({ props }) {
-    const { logStatus, click, password2, passConfirm, password, passChange } = props
-
+    const { logStatus, click, password2, passConfirm, password, passChange, reset } = props
+    
     return (
         <div className='lightbox lightbox-hidden'>
             <div className="container-fluid">
-                <Link to='/'><div id="close"></div></Link>
+                <Link to='/'><div onClick={reset} id="close"></div></Link>
                 <div className="row justify-content-center">
                     <div className="col-lg-12 px-5 py-5">
 

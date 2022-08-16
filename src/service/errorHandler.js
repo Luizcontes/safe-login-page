@@ -45,6 +45,18 @@ const logMsgs = {
     },
     newPass: {
         cod: '11',
+    },
+    emptyPasses: {
+        cod: '12',
+        msg: 'Passwords field must be filled and the same'
+    },
+    timeExpired: {
+        cod: '13',
+        msg: 'Time expired, please redefine your password again'
+    },
+    passUpdated: {
+        cod: '14',
+        msg: 'Password updated successfully'
     }
 }
 

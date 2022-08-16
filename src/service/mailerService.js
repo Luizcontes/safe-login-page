@@ -26,7 +26,7 @@ class Mailer {
             to: email, // Change to your recipient
             from: 'contes.dev@hotmail.com', // Change to your verified sender
             subject: this.title[title],
-            html: `<a href="http://localhost:8080/${subject}/${uuid}?email=${email}">${linkMsg}</a>`
+            html: `<a href="https://contes-loginpage.herokuapp.com/${subject}/${uuid}?email=${email}">${linkMsg}</a>`
         }
     }
 

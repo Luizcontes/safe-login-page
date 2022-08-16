@@ -1,9 +1,7 @@
 const dbService = require('../service/databaseService')
 const bcrypt = require('bcryptjs')
 const mailerService = require('../service/mailerService')
-const crypto = require('crypto')
 const jwt = require('jsonwebtoken')
-const { MailService } = require('@sendgrid/mail')
 
 /* 
  *  Service created to deal with user`s validations, in the whole
@@ -12,7 +10,7 @@ const { MailService } = require('@sendgrid/mail')
 class ValidationService {
     constructor() {
         this.user = ''
-        this.secretKey = 'a5638a895ab58685bdd260cd531437e603c17c48bba1b57963881fc09012c6ad6fbd31383bdb9cec454b8c37d52aea8ffb47a3336004e716d329d429d1f17502'
+        this.secretKey = process.env.SECRET_KEY
     }
 
     // method to check is e-mail and password provided are correct!
@@ -102,7 +100,7 @@ class ValidationService {
     }
 
 
-
+    // checks either if the user is a valid one
     async validateUserPass(uuid, email) {
         try {
             const isUserReg = await this.isUserReg(email)
@@ -128,16 +126,21 @@ class ValidationService {
         }
     }
 
-    // async updateUserPass()
-
-    // async updatePass() {
-    //     const isUpdated = await dbService.validate(this.user)
-    //     if (isUpdated) {
-    //         return true
-    //     } else {
-    //         return false
-    //     }
-    // }
+    // changes the password in the database
+    async updatePass(pass, email) {
+        const isUserReg = await this.isUserReg(email)
+        if (isUserReg) {
+            const hashPass = await this.getHashPass(pass)
+            const isPassUpdated = await dbService.updatePass(this.user, hashPass)
+            if(isPassUpdated) {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return false
+        }
+    }
 
     //  encrypts the password provided by the user in the first access
     async getHashPass(pass) {

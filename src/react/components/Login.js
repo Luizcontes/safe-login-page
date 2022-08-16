@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 function Login({ props }) {
-    const { logStatus, click , email, emailChange, password, passChange, ...rest } = props
+    const { logStatus, click , email, emailChange, password, passChange, reset } = props
 
     // console.log(props)
     return (
@@ -31,9 +31,9 @@ function Login({ props }) {
                                     <button id='login' className="btn1 mb-4" type="button" onClick={click}>Login</button>
                                 </div>
                             </div>
-                            <Link to='forgot'>Forgot password</Link>
+                            <Link onClick={reset} to='forgot'>Forgot password</Link>
                             <p>Don`t have an account?
-                                <Link to='register'> Register here</Link>
+                                <Link onClick={reset} to='register'> Register here</Link>
                             </p>
                         </form>
                     </div>

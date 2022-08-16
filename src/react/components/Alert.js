@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 function Alert({ props }) {
-    const { logStatus, click, email, emailChange, password, passChange, reset } = props
+    const { logStatus, reset } = props
 
     return (
         <div className='lightbox lightbox-hidden'>
